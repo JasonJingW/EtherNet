@@ -50,6 +50,9 @@ def validate_output(output):
 
 
 def main():
+    # Use consistent encoding in terminals and redirected logs.
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("configure", "build", "clean", "rebuild", "size"))
     parser.add_argument("--build-type", choices=("Debug", "Release", "RelWithDebInfo", "MinSizeRel"), default="Debug")
@@ -98,6 +101,10 @@ def main():
         if args.command == "rebuild":
             run([cmake, "--build", str(output), "--target", "clean"])
         run([cmake, "--build", str(output), "--target", "firmware_files", "--parallel", str(args.jobs)])
+        firmware = Path((output / "firmware_path.txt").read_text(encoding="utf-8").strip())
+        binary = ROOT / "build" / "build_file" / firmware.with_suffix(".bin").name
+        print(f">>> Firmware output directory: {binary.parent}", flush=True)
+        print(f">>> BIN file: {binary.name}", flush=True)
         return 0
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
         print(f"GCC build error: {error}", file=sys.stderr)

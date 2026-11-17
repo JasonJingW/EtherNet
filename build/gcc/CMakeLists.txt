@@ -101,4 +101,3 @@ add_custom_target(firmware_files ALL
         "${_artifact_directory}/${_artifact_name}.hex"
         "${_artifact_directory}/${_artifact_name}.map"
     COMMENT "Publishing ${_artifact_name} to build/build_file" VERBATIM)
-message(STATUS "Features: FreeRTOS=${GCC_ENABLE_FREERTOS}; RTT=${GCC_ENABLE_RTT}; heartbeat=${GCC_WITH_HEARTBEAT}; timers=${GCC_WITH_TIMERS}")
