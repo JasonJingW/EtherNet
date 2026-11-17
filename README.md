@@ -32,7 +32,7 @@ build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖�
 
 - 芯片容量和 RTOS 内存预算：`platform_common/core/stm32f7xx/config/stm32f767xgx_config.h`。
 - RTOS 调度及中断设置：`board/config/FreeRTOSConfig.h`。
-- 任务优先级：`board/config/task_config.h`；名称、栈和周期在任务自身头文件中。
+- 任务优先级：`board/config/task_config.h`；名称、栈、周期和启动延时在任务自身头文件中。
 - RTT 日志级别和颜色：`platform_common/RTT/Config/SEGGER_RTT_Conf.h`。
 - 项目名称和版本：`board/config/version.h`。
 - 最终编译开关：`build/gcc/options.cmake`，也可通过构建命令传入 `-D` 覆盖。
