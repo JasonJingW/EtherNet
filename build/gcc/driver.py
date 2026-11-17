@@ -51,7 +51,7 @@ def validate_output(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("configure", "build", "clean", "rebuild", "size", "config_check", "menuconfig", "guiconfig"))
+    parser.add_argument("command", choices=("configure", "build", "clean", "rebuild", "size"))
     parser.add_argument("--build-type", choices=("Debug", "Release", "RelWithDebInfo", "MinSizeRel"), default="Debug")
     parser.add_argument("--output", type=Path, help="Output directory, relative to build/gcc unless absolute")
     parser.add_argument("--jobs", type=int, default=os.cpu_count() or 1)
@@ -91,15 +91,13 @@ def main():
         configure = [cmake, "-S", str(BACKEND), "-B", str(output), "-G", "Ninja",
                      "-DCMAKE_BUILD_TYPE=" + args.build_type,
                      "-DARM_GCC_BIN=" + str(Path(gcc).parent),
-                     "-DCMAKE_MAKE_PROGRAM=" + ninja,
-                     "-DPython3_EXECUTABLE=" + sys.executable]
+                     "-DCMAKE_MAKE_PROGRAM=" + ninja]
         run(configure + ["-D" + item for item in args.definitions])
         if args.command == "configure":
             return 0
         if args.command == "rebuild":
             run([cmake, "--build", str(output), "--target", "clean"])
-        target = args.command if args.command in ("config_check", "menuconfig", "guiconfig") else "firmware_files"
-        run([cmake, "--build", str(output), "--target", target, "--parallel", str(args.jobs)])
+        run([cmake, "--build", str(output), "--target", "firmware_files", "--parallel", str(args.jobs)])
         return 0
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
         print(f"GCC build error: {error}", file=sys.stderr)

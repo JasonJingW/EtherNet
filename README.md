@@ -2,6 +2,11 @@
 
 当前包含芯片基础依赖、板级时钟、LED、RTT 输出及 FreeRTOS 应用入口。
 
+
+固件构建入口为 `python platform_common/scripts/build/build.py build`。最终开关、工具链及链接规则位于 [build/gcc](build/gcc/readme.md)，子仓通过 CMake 源码接口提供各组件。最终产物位于 build/build_file，按大写项目名_版本号命名（如 ETHERNET_0.0.1.bin）；构建缓存位于 build/gcc/out/debug。
+
+build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖安装在工程外，由系统环境提供。工具配置与构建动作统一保存在 build/gcc/build.json。
+
 - `platform_common/core/stm32f7xx/hal_driver/`：HAL 基础、GPIO、RCC、Cortex、PWR、FLASH 模块及许可证。
 - `platform_common/core/stm32f7xx/cmsis/`：Cortex-M7 内核头文件、STM32F767 设备头文件、系统文件和 GCC 启动文件。
 - `platform_common/core/stm32f7xx/config/stm32f7xx_hal_conf.h`：当前 HAL 模块开关、晶振频率等配置。
@@ -19,4 +24,22 @@
 
 以太网代码已移出仓库暂存，并保留修改前快照、ZIP 副本和 SHA256 清单；当前没有网络初始化与通信功能。暂存位置记录于工作区仓库外的 `ethernet_staging/latest.txt`。
 
-使用实际 RTOS 配置，26 个源文件已通过 ARM GCC 编译和可重定位链接检查。当前尚无完整构建、最终链接与下载配置，未验证完整固件链接或烧录。工作区顶层的原始 HAL 驱动参考仓库及板卡手册保持原位置。
+已通过 ARM GCC 完整固件构建及 ELF 链接，输出 ELF、HEX、BIN 和 MAP，并验证了功能开关组合；尚未上板运行。工作区顶层的原始 HAL 驱动参考仓库及板卡手册保持原位置。
+
+## 项目配置
+
+直接编辑头文件，无需生成步骤：
+
+- 芯片容量和 RTOS 内存预算：`platform_common/core/stm32f7xx/config/stm32f767xgx_config.h`。
+- RTOS 调度及中断设置：`board/config/FreeRTOSConfig.h`。
+- 任务优先级：`board/config/task_config.h`；名称、栈和周期在任务自身头文件中。
+- RTT 日志级别和颜色：`platform_common/RTT/Config/SEGGER_RTT_Conf.h`。
+- 项目名称和版本：`board/config/version.h`。
+- 最终编译开关：`build/gcc/options.cmake`，也可通过构建命令传入 `-D` 覆盖。
+
+```powershell
+python platform_common/scripts/build/build.py build
+python platform_common/scripts/build/build.py rebuild --jobs 4
+```
+
+详细工具版本、功能开关和产物规则见 [构建说明](build/gcc/readme.md)。

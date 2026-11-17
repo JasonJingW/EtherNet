@@ -25,7 +25,6 @@ build/
 | CMake | 3.20+ | 4.4.5 |
 | Ninja | 可用的 Ninja 构建后端 | 1.13.2 |
 | ARM GCC | 支持 Cortex-M7、FPv5-D16、hard-float、C11/ASM | Arm GNU 15.2.Rel1 / GCC 15.2.1 |
-| windows-curses | Windows 终端菜单使用 2.4.2，wheel 匹配 Python ABI | 2.4.2 / CPython 3.14 / win_amd64 |
 
 除明确声明的最低版本外，上表列出实际验证基线，不代表其他 Ninja/GCC 版本已经测试。工具安装目录位于工程外，当前为 E:/PorjectSoftware/tools；工程不保留 tools 副本。
 
@@ -43,9 +42,6 @@ python platform_common/scripts/build/build.py build --output out/no-heartbeat -D
 python platform_common/scripts/build/build.py build --output out/baremetal -DGCC_ENABLE_FREERTOS=OFF -DGCC_ENABLE_RTT=OFF
 python platform_common/scripts/build/build.py build --output out/no-timers -DGCC_TIMERS=OFF
 
-# 配置检查及当前终端中的配置菜单。
-python platform_common/scripts/build/build.py config_check
-python platform_common/scripts/build/build.py menuconfig
 ```
 
 Python 入口是 `python -B platform_common/scripts/build/build.py`。有多个构建后端时加 `--backend build/gcc`。`--output` 相对本目录，默认 `out/debug`；其他构建类型使用对应的小写目录名。额外 CMake 参数以 `-DKEY=VALUE` 传入。
@@ -58,13 +54,13 @@ Python 入口是 `python -B platform_common/scripts/build/build.py`。有多个�
 |---|---|---|
 | `GCC_ENABLE_FREERTOS` | ON | 是否链接 RTOS 内核、移植层及任务管理；OFF 时保留 HAL 和裸机等待循环 |
 | `GCC_ENABLE_RTT` | ON | 是否链接 RTT；OFF 时日志接口编译为空操作 |
-| `GCC_HEARTBEAT` | AUTO | AUTO 使用 Kconfig 默认开关且要求 RTOS；ON/OFF 显式覆盖 |
-| `GCC_TIMERS` | AUTO | AUTO 使用 Kconfig 软件定时器设置且要求 RTOS；ON/OFF 显式覆盖 |
+| `GCC_HEARTBEAT` | AUTO | AUTO 随 FreeRTOS 启用；ON/OFF 显式覆盖 |
+| `GCC_TIMERS` | AUTO | AUTO 随 FreeRTOS 启用；ON/OFF 显式覆盖 |
 | `GCC_FREERTOS_PORT` | CM7_R0P1 | CM7_R0P1 或 CM4F，最终只链接一个移植层 |
 | `GCC_MAIN_STACK_SIZE` | 4096 | 主/中断栈预留字节数，至少 256、8 字节对齐并适配 DTCM |
 | `GCC_WARNINGS_AS_ERRORS` | ON | C 编译警告视为错误 |
 
-强制开启心跳或软件定时器时必须同时开启 FreeRTOS，非法组合在配置阶段报错。Kconfig 负责参数和 AUTO 默认值，最终开关和源码选择位于此处。已有输出目录会保留 CMake 缓存；更改开关时显式传 -D 参数，或选一个新的输出目录。
+强制开启心跳或软件定时器时必须同时开启 FreeRTOS，非法组合在配置阶段报错。参数直接在各自配置头文件中维护，最终开关和源码选择位于此处。链接内存容量直接读取芯片配置头文件中的十进制字节宏，不再生成中间配置文件。已有输出目录会保留 CMake 缓存；更改开关时显式传 -D 参数，或选一个新的输出目录。
 
 ## 工具路径
 

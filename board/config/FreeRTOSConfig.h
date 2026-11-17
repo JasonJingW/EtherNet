@@ -2,7 +2,6 @@
 #define FREERTOS_CONFIG_H
 
 #include "stm32f7xx.h"
-#include "generated/project_autoconf.h"
 
 /* This project uses STM32F767xGx. Set to 0 to use the defaults below only. */
 #ifndef FREERTOS_USE_CHIP_CONFIG
@@ -76,7 +75,7 @@
 /* Priorities 5..15 may call FromISR APIs; numerically smaller is more urgent. */
 #define configPRIO_BITS                          __NVIC_PRIO_BITS
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY   15U
-#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY CONFIG_RTOS_MAX_SYSCALL_INTERRUPT_PRIORITY
+#define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY 5U
 #define configKERNEL_INTERRUPT_PRIORITY          \
     (configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8U - configPRIO_BITS))
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY     \

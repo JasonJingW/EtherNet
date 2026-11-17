@@ -1,7 +1,6 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
-#include "generated/project_autoconf.h"
 #include "version.h"
 
 /* Common C standard library interfaces. */

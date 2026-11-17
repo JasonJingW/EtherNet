@@ -13,7 +13,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
 get_filename_component(ETHERNET_PROJECT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
-include("${CMAKE_CURRENT_LIST_DIR}/config.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/options.cmake")
 
 # Keep artifact names in sync with the firmware's public version header.
@@ -73,14 +72,13 @@ if(GCC_WITH_HEARTBEAT)
 endif()
 
 # Map ordinary data/RTOS heap to SRAM1+SRAM2; reserve the main stack in DTCM.
-math(EXPR GCC_RAM_SIZE "${CONFIG_CHIP_SRAM1_SIZE_BYTES} + ${CONFIG_CHIP_SRAM2_SIZE_BYTES}")
+math(EXPR GCC_RAM_SIZE "${CHIP_SRAM1_SIZE_BYTES} + ${CHIP_SRAM2_SIZE_BYTES}")
 configure_file(memory.ld.in "${CMAKE_CURRENT_BINARY_DIR}/memory.ld" @ONLY)
 set_property(TARGET firmware APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/memory.ld")
 target_link_options(firmware PRIVATE ${_gcc_arch} -nostartfiles --specs=nano.specs --specs=nosys.specs
     "-T${CMAKE_CURRENT_BINARY_DIR}/memory.ld" "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${_artifact_name}.map"
     -Wl,--gc-sections,--cref,--print-memory-usage)
 target_link_libraries(firmware PRIVATE m c)
-add_dependencies(firmware config_generate)
 add_custom_command(TARGET firmware POST_BUILD
     BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${_artifact_name}.hex"
         "${CMAKE_CURRENT_BINARY_DIR}/${_artifact_name}.bin" "${CMAKE_CURRENT_BINARY_DIR}/${_artifact_name}.map"
