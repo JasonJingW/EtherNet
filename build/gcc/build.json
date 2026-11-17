@@ -5,6 +5,15 @@
         "ninja": "ninja",
         "arm_gcc": "arm-none-eabi-gcc"
     },
+    "flash": {
+        "jlink": "JLink",
+        "project_config": "../../board/config/project_config.h",
+        "interface": "SWD",
+        "speed_khz": 4000,
+        "address": "0x08000000",
+        "version_header": "../../board/config/version.h",
+        "image": "../build_file/{project}_{version}.bin"
+    },
     "commands": {
         "configure": [
             "{python}",

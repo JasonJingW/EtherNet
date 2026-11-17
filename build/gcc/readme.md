@@ -31,20 +31,20 @@ build/
 从主仓库根目录执行：
 
 ```powershell
-python platform_common/scripts/build/build.py build
-python platform_common/scripts/build/build.py build --build-type Release
-python platform_common/scripts/build/build.py size
-python platform_common/scripts/build/build.py clean
-python platform_common/scripts/build/build.py rebuild --jobs 4
+python platform_common/scripts/build/project_build.py build
+python platform_common/scripts/build/project_build.py build --build-type Release
+python platform_common/scripts/build/project_build.py size
+python platform_common/scripts/build/project_build.py clean
+python platform_common/scripts/build/project_build.py rebuild --jobs 4
 
 # 独立输出目录，避免不同配置共用 CMake 缓存。
-python platform_common/scripts/build/build.py build --output out/no-heartbeat -DGCC_HEARTBEAT=OFF
-python platform_common/scripts/build/build.py build --output out/baremetal -DGCC_ENABLE_FREERTOS=OFF -DGCC_ENABLE_RTT=OFF
-python platform_common/scripts/build/build.py build --output out/no-timers -DGCC_TIMERS=OFF
+python platform_common/scripts/build/project_build.py build --output out/no-heartbeat -DGCC_HEARTBEAT=OFF
+python platform_common/scripts/build/project_build.py build --output out/baremetal -DGCC_ENABLE_FREERTOS=OFF -DGCC_ENABLE_RTT=OFF
+python platform_common/scripts/build/project_build.py build --output out/no-timers -DGCC_TIMERS=OFF
 
 ```
 
-Python 入口是 `python -B platform_common/scripts/build/build.py`。有多个构建后端时加 `--backend build/gcc`。`--output` 相对本目录，默认 `out/debug`；其他构建类型使用对应的小写目录名。额外 CMake 参数以 `-DKEY=VALUE` 传入。
+Python 入口是 `python -B platform_common/scripts/build/project_build.py`。有多个构建后端时加 `--backend build/gcc`。`--output` 相对本目录，默认 `out/debug`；其他构建类型使用对应的小写目录名。额外 CMake 参数以 `-DKEY=VALUE` 传入。
 
 ## 功能开关
 

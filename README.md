@@ -3,7 +3,7 @@
 当前包含芯片基础依赖、板级时钟、LED、RTT 输出及 FreeRTOS 应用入口。
 
 
-固件构建入口为 `python platform_common/scripts/build/build.py build`。最终开关、工具链及链接规则位于 [build/gcc](build/gcc/readme.md)，子仓通过 CMake 源码接口提供各组件。最终产物位于 build/build_file，按大写项目名_版本号命名（如 ETHERNET_0.0.1.bin）；构建缓存位于 build/gcc/out/debug。
+固件构建入口为 `python platform_common/scripts/build/project_build.py build`。最终开关、工具链及链接规则位于 [build/gcc](build/gcc/readme.md)，子仓通过 CMake 源码接口提供各组件。最终产物位于 build/build_file，按大写项目名_版本号命名（如 ETHERNET_0.0.1.bin）；构建缓存位于 build/gcc/out/debug。
 
 build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖安装在工程外，由系统环境提供。工具配置与构建动作统一保存在 build/gcc/build.json。
 
@@ -16,7 +16,7 @@ build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖�
 - `board/config/project_config.h`：上层统一包含入口，汇总常用 C 标准库、STM32 HAL/CMSIS、硬件初始化、RTT 日志及 FreeRTOS 接口；板级接口另行包含 `board.h`。
 - `board/config/FreeRTOSConfig.h`：1 kHz tick、32 KiB heap_4 堆、中断优先级和任务配置。构建时将 `board/config` 加入包含路径。
 - `platform_common/core/stm32f7xx/config/stm32f767xgx_config.h`：芯片内存容量与 `CHIP_RTOS_*` 可调整参数；RTOS 配置逐项优先使用芯片参数，缺省时保留原值，设置 `FREERTOS_USE_CHIP_CONFIG=0` 可跳过芯片配置头。
-- `platform_application/main.c`：初始化后调用任务管理入口；`task/task_manage.c/.h` 负责创建任务、启动调度器和 RTOS 错误钩子，心跳任务当前每 50 ms 翻转 LED0。SysTick/HardFault 位于 `platform_common/core/stm32f7xx/system_init.c`，SVC/PendSV 由 RTOS 移植层提供。
+- `platform_application/main.c`：初始化后调用任务管理入口；`task/task_manage.c/.h` 负责创建任务、启动调度器和 RTOS 错误钩子，心跳任务每 500 ms 翻转 LED0、每 1000 ms 翻转 LED1。SysTick/HardFault 位于 `platform_common/core/stm32f7xx/system_init.c`，SVC/PendSV 由 RTOS 移植层提供。
 - `platform_application/task/task_heartbeat.c/.h`：心跳任务实现及其自身接口。
 - `board/config/task_config.h`：仅集中保存任务优先级，其余配置和创建接口由各任务自身管理；任务管理模块不依赖各任务私有头文件。
 
@@ -34,12 +34,15 @@ build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖�
 - RTOS 调度及中断设置：`board/config/FreeRTOSConfig.h`。
 - 任务优先级：`board/config/task_config.h`；名称、栈、周期和启动延时在任务自身头文件中。
 - RTT 日志级别和颜色：`platform_common/RTT/Config/SEGGER_RTT_Conf.h`。
+- 烧录芯片型号：`board/config/project_config.h` 中的 `PROJECT_CHIP_MODEL`。
 - 项目名称和版本：`board/config/version.h`。
 - 最终编译开关：`build/gcc/options.cmake`，也可通过构建命令传入 `-D` 覆盖。
 
 ```powershell
-python platform_common/scripts/build/build.py build
-python platform_common/scripts/build/build.py rebuild --jobs 4
+python platform_common/scripts/build/project_build.py build
+python platform_common/scripts/build/project_build.py rebuild --jobs 4
 ```
 
 详细工具版本、功能开关和产物规则见 [构建说明](build/gcc/readme.md)。
+
+J-Link 烧录入口：`python platform_common/scripts/build/project_flash.py`，默认先编译再烧录，传入 `--bin` 可直接烧录已有 BIN；`--dry-run` 仅预览命令。使用说明见 [公共脚本说明](platform_common/scripts/build/readme.md#j-link-烧录入口)。

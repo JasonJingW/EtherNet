@@ -3,6 +3,9 @@
 
 #include "version.h"
 
+/* Default J-Link target device used by project_flash.py. */
+#define PROJECT_CHIP_MODEL "STM32F767IG"
+
 /* Common C standard library interfaces. */
 #include <assert.h>
 #include <ctype.h>
