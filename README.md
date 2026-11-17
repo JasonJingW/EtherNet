@@ -6,6 +6,7 @@
 - `platform_common/core/stm32f7xx/cmsis/`：Cortex-M7 内核头文件、STM32F767 设备头文件、系统文件和 GCC 启动文件。
 - `platform_common/core/stm32f7xx/config/stm32f7xx_hal_conf.h`：当前 HAL 模块开关、晶振频率等配置。
 - `platform_common/RTT/`：统一使用此处的 SEGGER RTT 源码和配置，主仓库中的重复副本已删除。
+- `platform_common/FreeRTOS/`：已复制 RTOS 内核、GCC/Cortex-M7 移植层、heap_4、配置模板和说明，尚未启用调度器。
 - `board/bsp/board.c`、`board/bsp/board.h`：板级时钟初始化、LED 和错误处理；构建时将 `board/bsp` 加入包含路径。
 - `platform_application/main.c`：基础启动、中断处理和 C 库系统调用适配；启动后通过 RTT 打印 CPU 频率并等待中断。
 
