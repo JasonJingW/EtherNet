@@ -29,6 +29,7 @@ void Board_Init(void)
 }
 void Board_Fatal(const char *reason)
 {
+    (void)reason; /* The log level can compile error output out. */
     RLOG_ERR("FATAL: %s", reason);
     while (1) { Board_LEDToggle(0); HAL_Delay(100); }
 }

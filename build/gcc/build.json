@@ -1,0 +1,18 @@
+{
+    "schema_version": 1,
+    "tools": {
+        "cmake": "cmake",
+        "ninja": "ninja",
+        "arm_gcc": "arm-none-eabi-gcc"
+    },
+    "commands": {
+        "configure": ["{python}", "{backend}/driver.py", "configure"],
+        "build": ["{python}", "{backend}/driver.py", "build"],
+        "clean": ["{python}", "{backend}/driver.py", "clean"],
+        "rebuild": ["{python}", "{backend}/driver.py", "rebuild"],
+        "size": ["{python}", "{backend}/driver.py", "size"],
+        "config_check": ["{python}", "{backend}/driver.py", "config_check"],
+        "guiconfig": ["{python}", "{backend}/driver.py", "guiconfig"],
+        "menuconfig": ["{python}", "{backend}/driver.py", "menuconfig"]
+    }
+}

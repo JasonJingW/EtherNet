@@ -1,2 +1,13 @@
 # VScode 配置
 .vscode
+
+# Host build/configuration scratch files.
+/build/*
+!/build/gcc/
+/build/gcc/out/
+/build/gcc/CMakeFiles/
+/build/gcc/CMakeCache.txt
+/build/gcc/build.ninja
+/build/gcc/cmake_install.cmake
+__pycache__/
+*.pyc
