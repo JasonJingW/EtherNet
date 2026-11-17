@@ -1,0 +1,8 @@
+[submodule "platform_common"]
+	path = platform_common
+	url = git@github.com:JasonJingW/platform_common.git
+    ignore = all
+[submodule "platform_application"]
+	path = platform_application
+	url = git@github.com:JasonJingW/platform_application.git
+    ignore = all
