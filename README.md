@@ -2,6 +2,18 @@
 
 当前包含芯片基础依赖、板级时钟、LED、RTT 输出及 FreeRTOS 应用入口。
 
+## 首次拉取子仓库
+
+首次克隆根仓库后，在根仓库目录执行以下命令，初始化并拉取所有子仓库及其嵌套子仓库：
+
+```bash
+git submodule update --init --recursive
+```
+
+该命令会检出根仓记录的子仓提交版本，不会自动切换到子仓的最新提交。
+
+## 工程说明
+
 
 固件构建入口为 `python platform_common/scripts/build/project_build.py build`。最终开关、工具链及链接规则位于 [build/gcc](build/gcc/readme.md)，子仓通过 CMake 源码接口提供各组件。最终产物位于 build/build_file，按大写项目名_版本号命名（如 ETHERNET_0.0.1.bin）；构建缓存位于 build/gcc/out/debug。
 
@@ -46,3 +58,7 @@ python platform_common/scripts/build/project_build.py rebuild --jobs 4
 详细工具版本、功能开关和产物规则见 [构建说明](build/gcc/readme.md)。
 
 J-Link 烧录入口：`python platform_common/scripts/build/project_flash.py`，默认先编译再烧录，传入 `--bin` 可直接烧录已有 BIN；`--dry-run` 仅预览命令。使用说明见 [公共脚本说明](platform_common/scripts/build/readme.md#j-link-烧录入口)。
+
+## 代码规范
+
+数字常量宏统一增加括号，例如 `#define HEARTBEAT_TASK_PERIOD_MS (50U)`。完整规则见 [AGENTS.md](AGENTS.md)。
