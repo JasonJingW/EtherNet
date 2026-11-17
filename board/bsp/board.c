@@ -1,5 +1,5 @@
 #include "board.h"
-#include "SEGGER_RTT.h"
+#include "project_config.h"
 
 /* Apollo V2+ F767 hardware manual: PB1/DS0 and PB0/DS1, active low. */
 static const uint16_t led_pins[] = {GPIO_PIN_1, GPIO_PIN_0};
@@ -29,7 +29,7 @@ void Board_Init(void)
 }
 void Board_Fatal(const char *reason)
 {
-    SEGGER_RTT_printf(0, "FATAL: %s\r\n", reason);
+    RLOG_ERR("FATAL: %s", reason);
     while (1) { Board_LEDToggle(0); HAL_Delay(100); }
 }
 void Board_ClockInit(void)
