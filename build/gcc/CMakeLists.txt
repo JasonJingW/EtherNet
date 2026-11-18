@@ -39,6 +39,8 @@ add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_common" components/common)
 add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_application" components/application)
 add_executable(firmware
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_gpio.c"
+    "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_iic.c"
+    "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_sai.c"
     runtime.c
 )
 set_target_properties(firmware PROPERTIES OUTPUT_NAME "${_artifact_name}" SUFFIX .elf)
@@ -55,6 +57,7 @@ target_compile_options(firmware PRIVATE ${_gcc_arch} -ffunction-sections -fdata-
     $<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${GCC_WARNINGS_AS_ERRORS}>>:-Werror>
     "$<$<CONFIG:Debug>:-Og;-g3>")
 target_link_libraries(firmware PRIVATE common::stm32f7xx application::main
+    common::stm32f7xx_i2c common::stm32f7xx_sai
     common::freertos_core common::freertos_heap4 application::task_manage)
 if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
     target_link_libraries(firmware PRIVATE common::freertos_port_cm7)
