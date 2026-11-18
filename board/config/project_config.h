@@ -37,7 +37,6 @@
 #endif
 
 /* Operating system interfaces; FreeRTOS.h must precede the API headers. */
-#if PROJECT_USE_FREERTOS
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -46,6 +45,5 @@
 #include "event_groups.h"
 #include "stream_buffer.h"
 #include "message_buffer.h"
-#endif
 
 #endif

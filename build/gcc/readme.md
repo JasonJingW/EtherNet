@@ -39,7 +39,7 @@ python platform_common/scripts/build/project_build.py rebuild --jobs 4
 
 # 独立输出目录，避免不同配置共用 CMake 缓存。
 python platform_common/scripts/build/project_build.py build --output out/no-heartbeat -DGCC_HEARTBEAT=OFF
-python platform_common/scripts/build/project_build.py build --output out/baremetal -DGCC_ENABLE_FREERTOS=OFF -DGCC_ENABLE_RTT=OFF
+python platform_common/scripts/build/project_build.py build --output out/no-rtt -DGCC_ENABLE_RTT=OFF
 python platform_common/scripts/build/project_build.py build --output out/no-timers -DGCC_TIMERS=OFF
 
 ```
@@ -52,15 +52,14 @@ Python 入口是 `python -B platform_common/scripts/build/project_build.py`。�
 
 | 参数 | 默认值 | 作用 |
 |---|---|---|
-| `GCC_ENABLE_FREERTOS` | ON | 是否链接 RTOS 内核、移植层及任务管理；OFF 时保留 HAL 和裸机等待循环 |
 | `GCC_ENABLE_RTT` | ON | 是否链接 RTT；OFF 时日志接口编译为空操作 |
-| `GCC_HEARTBEAT` | AUTO | AUTO 随 FreeRTOS 启用；ON/OFF 显式覆盖 |
-| `GCC_TIMERS` | AUTO | AUTO 随 FreeRTOS 启用；ON/OFF 显式覆盖 |
+| `GCC_HEARTBEAT` | AUTO | AUTO 默认开启；ON/OFF 显式覆盖 |
+| `GCC_TIMERS` | AUTO | AUTO 默认开启；ON/OFF 显式覆盖 |
 | `GCC_FREERTOS_PORT` | CM7_R0P1 | CM7_R0P1 或 CM4F，最终只链接一个移植层 |
 | `GCC_MAIN_STACK_SIZE` | 4096 | 主/中断栈预留字节数，至少 256、8 字节对齐并适配 DTCM |
 | `GCC_WARNINGS_AS_ERRORS` | ON | C 编译警告视为错误 |
 
-强制开启心跳或软件定时器时必须同时开启 FreeRTOS，非法组合在配置阶段报错。参数直接在各自配置头文件中维护，最终开关和源码选择位于此处。CMake 从芯片配置头读取 `(KiB * 1024U)` 形式的容量宏，换算为字节后生成链接脚本。已有输出目录会保留 CMake 缓存；更改开关时显式传 -D 参数，或选一个新的输出目录。
+固件始终链接 FreeRTOS，并在初始化完成后启动调度器。旧的 `GCC_ENABLE_FREERTOS=OFF` 在配置阶段报错。CMake 从芯片配置头读取 `(KiB * 1024U)` 形式的容量宏，换算为字节后生成链接脚本。已有输出目录会保留 CMake 缓存；更改开关时显式传 -D 参数，或选一个新的输出目录。
 
 ## 工具路径
 
@@ -80,7 +79,7 @@ cmake --build build/gcc/out/debug --target firmware
 - common::rtt：RTT 基础和格式化输出。
 - application::main / task_manage / heartbeat：应用入口、任务管理和心跳任务接口。
 
-这些都是 INTERFACE 源码目标，不在子仓自行决定启用状态，也不把可选任务藏在普通静态库里。最终目标统一提供 board/config、板级接口及 PROJECT_USE_FREERTOS、PROJECT_USE_RTT、PROJECT_USE_SOFTWARE_TIMERS 的 0/1 定义。
+这些都是 INTERFACE 源码目标，最终目标统一提供 board/config 和板级接口，按配置定义 `PROJECT_USE_RTT` 和 `PROJECT_USE_SOFTWARE_TIMERS`。
 
 build/build_file 包含 ETHERNET_0.0.1.elf、ETHERNET_0.0.1.hex、ETHERNET_0.0.1.bin、ETHERNET_0.0.1.map，名称随 version.h 更新；compile_commands.json 及中间产物位于 gcc/out/debug。主仓库保留本目录的构建源文件，忽略 out 中的构建产物。clean 使用 CMake 的 clean 目标，并检查缓存属于本后端。
 
@@ -94,4 +93,4 @@ runtime.c 提供厂商 Reset_Handler 调用 C 库初始化时需要的 _init/_fi
 
 定义静态 DMA 数组时，包含 `stm32f767xgx_config.h`，使用 `__DMA_U8_DEFINE(name, count)`、`__DMA_U16_DEFINE(name, count)` 或 `__DMA_U32_DEFINE(name, count)`。例如 `__DMA_U16_DEFINE(adc_rx, 256);` 定义 256 个 `uint16_t` 元素，占 512 字节。结构体等自定义类型可以在声明后加 `__DMA_DATA`。这些对象放入 `.noncache.dma`，由链接器与 RTT 等对象分开分配。外设有额外的对齐要求时单独指定，传输长度按 DMA 接口的单位限制在数组容量内。
 
-已验证默认 RTOS+RTT+心跳、关闭心跳/RTT、裸机，以及 CM4F 移植层的 Release 构建。固件完成实际 ELF 链接和 HEX/BIN 导出，尚未上板运行。
+已验证默认 RTOS+RTT+心跳、关闭心跳或 RTT，以及 CM4F 移植层的构建。GCC 后端导出 ELF、HEX 和 BIN。

@@ -82,7 +82,7 @@
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY     \
     (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8U - configPRIO_BITS))
 
-/* Match the chip startup vector names; SysTick uses system_init.c's wrapper. */
+/* Match the startup vectors; system_init.c routes the shared SysTick. */
 #define vPortSVCHandler                          SVC_Handler
 #define xPortPendSVHandler                       PendSV_Handler
 #define configCHECK_HANDLER_INSTALLATION         (1)

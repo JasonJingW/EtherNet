@@ -37,14 +37,16 @@ set(_artifact_directory "${ETHERNET_PROJECT_ROOT}/build/build_file")
 
 add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_common" components/common)
 add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_application" components/application)
-add_executable(firmware "${ETHERNET_PROJECT_ROOT}/board/bsp/board.c" runtime.c)
+add_executable(firmware
+    "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_gpio.c"
+    runtime.c
+)
 set_target_properties(firmware PROPERTIES OUTPUT_NAME "${_artifact_name}" SUFFIX .elf)
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/firmware_path.txt"
     CONTENT "$<TARGET_FILE:firmware>\n")
 target_include_directories(firmware PRIVATE "${ETHERNET_PROJECT_ROOT}/board/config"
     "${ETHERNET_PROJECT_ROOT}/board/bsp")
 target_compile_definitions(firmware PRIVATE STM32F767xx USE_HAL_DRIVER
-    PROJECT_USE_FREERTOS=$<BOOL:${GCC_ENABLE_FREERTOS}>
     PROJECT_USE_RTT=$<BOOL:${GCC_ENABLE_RTT}>
     PROJECT_USE_SOFTWARE_TIMERS=$<BOOL:${GCC_WITH_TIMERS}>)
 set(_gcc_arch -mcpu=cortex-m7 -mthumb -mfpu=fpv5-d16 -mfloat-abi=hard)
@@ -52,17 +54,15 @@ target_compile_options(firmware PRIVATE ${_gcc_arch} -ffunction-sections -fdata-
     "$<$<COMPILE_LANGUAGE:C>:-Wall;-Wextra>"
     $<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${GCC_WARNINGS_AS_ERRORS}>>:-Werror>
     "$<$<CONFIG:Debug>:-Og;-g3>")
-target_link_libraries(firmware PRIVATE common::stm32f7xx application::main)
-if(GCC_ENABLE_FREERTOS)
-    target_link_libraries(firmware PRIVATE common::freertos_core common::freertos_heap4 application::task_manage)
-    if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
-        target_link_libraries(firmware PRIVATE common::freertos_port_cm7)
-    else()
-        target_link_libraries(firmware PRIVATE common::freertos_port_cm4f)
-    endif()
-    if(GCC_WITH_TIMERS)
-        target_link_libraries(firmware PRIVATE common::freertos_timers)
-    endif()
+target_link_libraries(firmware PRIVATE common::stm32f7xx application::main
+    common::freertos_core common::freertos_heap4 application::task_manage)
+if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
+    target_link_libraries(firmware PRIVATE common::freertos_port_cm7)
+else()
+    target_link_libraries(firmware PRIVATE common::freertos_port_cm4f)
+endif()
+if(GCC_WITH_TIMERS)
+    target_link_libraries(firmware PRIVATE common::freertos_timers)
 endif()
 if(GCC_ENABLE_RTT)
     target_link_libraries(firmware PRIVATE common::rtt)
