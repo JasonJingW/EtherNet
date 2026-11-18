@@ -5,7 +5,9 @@ MEMORY
     FLASH (rx)  : ORIGIN = 0x08000000, LENGTH = @CHIP_FLASH_SIZE_BYTES@
     DTCM  (rw)  : ORIGIN = 0x20000000, LENGTH = @CHIP_DTCM_SIZE_BYTES@ - @GCC_MAIN_STACK_SIZE@
     STACK (rw)  : ORIGIN = 0x20000000 + @CHIP_DTCM_SIZE_BYTES@ - @GCC_MAIN_STACK_SIZE@, LENGTH = @GCC_MAIN_STACK_SIZE@
-    RAM   (rwx) : ORIGIN = 0x20020000, LENGTH = @GCC_RAM_SIZE@
+    NOCACHE (rw) : ORIGIN = 0x20020000, LENGTH = @CHIP_NONCACHE_RAM_SIZE_BYTES@
+    RAM   (rwx) : ORIGIN = 0x20020000 + @CHIP_NONCACHE_RAM_SIZE_BYTES@,
+                  LENGTH = @CHIP_SRAM1_SIZE_BYTES@ + @CHIP_SRAM2_SIZE_BYTES@ - @CHIP_NONCACHE_RAM_SIZE_BYTES@
 }
 
 PHDRS
@@ -83,6 +85,13 @@ SECTIONS
     . = ALIGN(8);
     PROVIDE(end = .);
     PROVIDE(_end = .);
+    .noncache (NOLOAD) :
+    {
+        *(.noncache.rtt.control)
+        *(.noncache .noncache.*)
+    } > NOCACHE :NONE
+    __noncache_start__ = ORIGIN(NOCACHE);
+    __noncache_end__ = ORIGIN(NOCACHE) + LENGTH(NOCACHE);
     .stack (NOLOAD) :
     {
         __StackLimit = .;
@@ -94,3 +103,6 @@ SECTIONS
     /DISCARD/ : { *(.note.GNU-stack) }
 }
 ASSERT(__StackTop == 0x20000000 + @CHIP_DTCM_SIZE_BYTES@, "Invalid main stack placement")
+ASSERT(LENGTH(NOCACHE) == 16K, "Non-cacheable RAM size must match the MPU region")
+ASSERT((ORIGIN(NOCACHE) % LENGTH(NOCACHE)) == 0, "Non-cacheable RAM must align to the MPU region size")
+ASSERT(DEFINED(_SEGGER_RTT) ? _SEGGER_RTT == ORIGIN(NOCACHE) : 1, "RTT control block must start the non-cacheable RAM region")

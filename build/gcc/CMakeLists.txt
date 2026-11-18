@@ -66,13 +66,15 @@ if(GCC_ENABLE_FREERTOS)
 endif()
 if(GCC_ENABLE_RTT)
     target_link_libraries(firmware PRIVATE common::rtt)
+    target_compile_definitions(firmware PRIVATE
+        SEGGER_RTT_SECTION=".noncache.rtt.control"
+        SEGGER_RTT_BUFFER_SECTION=".noncache.rtt.buffers")
 endif()
 if(GCC_WITH_HEARTBEAT)
     target_link_libraries(firmware PRIVATE application::heartbeat)
 endif()
 
-# Map ordinary data/RTOS heap to SRAM1+SRAM2; reserve the main stack in DTCM.
-math(EXPR GCC_RAM_SIZE "${CHIP_SRAM1_SIZE_BYTES} + ${CHIP_SRAM2_SIZE_BYTES}")
+# Reserve shared RAM at the start of SRAM1 and the main stack in DTCM.
 configure_file(memory.ld.in "${CMAKE_CURRENT_BINARY_DIR}/memory.ld" @ONLY)
 set_property(TARGET firmware APPEND PROPERTY LINK_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/memory.ld")
 target_link_options(firmware PRIVATE ${_gcc_arch} -nostartfiles --specs=nano.specs --specs=nosys.specs

@@ -1,13 +1,13 @@
 # Final build policy belongs to the root repository, not the component repos.
-# The chip header is the single source of physical memory capacities.
+# The chip header supplies physical memory capacities and the shared RAM budget.
 set(_chip_config "${ETHERNET_PROJECT_ROOT}/platform_common/core/stm32f7xx/config/stm32f767xgx_config.h")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_chip_config}")
 file(READ "${_chip_config}" _chip_text)
-foreach(_region FLASH SRAM1 SRAM2 DTCM ITCM BACKUP_SRAM)
-    if(NOT _chip_text MATCHES "#[ \t]*define[ \t]+CHIP_${_region}_SIZE_BYTES[ \t]+\\([ \t]*([0-9]+)[Uu]?[ \t]*\\)[ \t]*[\r\n]")
-        message(FATAL_ERROR "CHIP_${_region}_SIZE_BYTES must be a parenthesized decimal byte literal in ${_chip_config}")
+foreach(_region FLASH SRAM1 SRAM2 DTCM ITCM BACKUP_SRAM NONCACHE_RAM)
+    if(NOT _chip_text MATCHES "#[ \t]*define[ \t]+CHIP_${_region}_SIZE_BYTES[ \t]+\\([ \t]*([0-9]+)[Uu]?[ \t]*\\*[ \t]*1024[Uu]?[ \t]*\\)[ \t]*[\r\n]")
+        message(FATAL_ERROR "CHIP_${_region}_SIZE_BYTES must use (KiB * 1024U) in ${_chip_config}")
     endif()
-    set(CHIP_${_region}_SIZE_BYTES "${CMAKE_MATCH_1}")
+    math(EXPR CHIP_${_region}_SIZE_BYTES "${CMAKE_MATCH_1} * 1024")
 endforeach()
 
 option(GCC_ENABLE_FREERTOS "Build FreeRTOS and application task management" ON)
