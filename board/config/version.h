@@ -3,6 +3,10 @@
 
 #define PROJECT_NAME "EtherNet"
 
+/* Compiler-provided date and time of the firmware translation unit. */
+#define PROJECT_BUILD_DATE __DATE__
+#define PROJECT_BUILD_TIME __TIME__
+
 /* Start at 0.0.1; increment for each release, not for each build.
  * Decimal carry: 0.0.9 -> 0.1.0; 0.9.9 -> 1.0.0.
  * MINOR and PATCH range from 0 to 9; MAJOR has no single-digit limit.

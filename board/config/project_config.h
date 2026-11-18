@@ -30,6 +30,7 @@
 #include "SEGGER_RTT.h"
 #else
 #define segger_rtt_init() ((void)0)
+#define RLOG_PRINT(...) ((void)0)
 #define RLOG_INFO(...) ((void)0)
 #define RLOG_ERR(...) ((void)0)
 #define RLOG_WAR(...) ((void)0)
