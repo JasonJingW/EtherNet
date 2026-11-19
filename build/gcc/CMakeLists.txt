@@ -56,7 +56,7 @@ target_compile_options(firmware PRIVATE ${_gcc_arch} -ffunction-sections -fdata-
     "$<$<COMPILE_LANGUAGE:C>:-Wall;-Wextra>"
     $<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${GCC_WARNINGS_AS_ERRORS}>>:-Werror>
     "$<$<CONFIG:Debug>:-Og;-g3>")
-target_link_libraries(firmware PRIVATE common::stm32f7xx application::main
+target_link_libraries(firmware PRIVATE common::stm32f7xx application::main application::audio application::es8388
     common::stm32f7xx_i2c common::stm32f7xx_sai
     common::freertos_core common::freertos_heap4 application::task_manage)
 if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
