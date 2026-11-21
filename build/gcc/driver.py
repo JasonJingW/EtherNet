@@ -103,8 +103,10 @@ def main():
         run([cmake, "--build", str(output), "--target", "firmware_files", "--parallel", str(args.jobs)])
         firmware = Path((output / "firmware_path.txt").read_text(encoding="utf-8").strip())
         binary = ROOT / "build" / "build_file" / firmware.with_suffix(".bin").name
+        binary_size = binary.stat().st_size
         print(f">>> Firmware output directory: {binary.parent}", flush=True)
         print(f">>> BIN file: {binary.name}", flush=True)
+        print(f">>> BIN size: {binary_size:,} bytes ({binary_size / 1024:.2f} KiB)", flush=True)
         return 0
     except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
         print(f"GCC build error: {error}", file=sys.stderr)

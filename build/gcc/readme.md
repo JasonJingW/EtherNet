@@ -46,6 +46,8 @@ python platform_common/scripts/build/project_build.py build --output out/no-time
 
 Python 入口是 `python -B platform_common/scripts/build/project_build.py`。有多个构建后端时加 `--backend build/gcc`。`--output` 相对本目录，默认 `out/debug`；其他构建类型使用对应的小写目录名。额外 CMake 参数以 `-DKEY=VALUE` 传入。
 
+`build` 和 `rebuild` 成功后都会打印最终 BIN 文件的字节数和 KiB，包括无需重新链接的增量构建。单独执行 `size` 可查看已有 ELF 的段大小。
+
 ## 功能开关
 
 统一声明于 options.cmake：
