@@ -39,6 +39,7 @@ add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_common" components/common)
 add_subdirectory("${ETHERNET_PROJECT_ROOT}/platform_application" components/application)
 add_executable(firmware
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_gpio.c"
+    "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_eth.c"
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_iic.c"
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_sai.c"
     runtime.c
@@ -47,7 +48,7 @@ set_target_properties(firmware PROPERTIES OUTPUT_NAME "${_artifact_name}" SUFFIX
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/firmware_path.txt"
     CONTENT "$<TARGET_FILE:firmware>\n")
 target_include_directories(firmware PRIVATE "${ETHERNET_PROJECT_ROOT}/board/config"
-    "${ETHERNET_PROJECT_ROOT}/board/bsp")
+    "${ETHERNET_PROJECT_ROOT}/board/bsp" "${ETHERNET_PROJECT_ROOT}/board/config/lwip")
 target_compile_definitions(firmware PRIVATE STM32F767xx USE_HAL_DRIVER
     PROJECT_USE_RTT=$<BOOL:${GCC_ENABLE_RTT}>
     PROJECT_USE_SOFTWARE_TIMERS=$<BOOL:${GCC_WITH_TIMERS}>)
@@ -57,7 +58,7 @@ target_compile_options(firmware PRIVATE ${_gcc_arch} -ffunction-sections -fdata-
     $<$<AND:$<COMPILE_LANGUAGE:C>,$<BOOL:${GCC_WARNINGS_AS_ERRORS}>>:-Werror>
     "$<$<CONFIG:Debug>:-Og;-g3>")
 target_link_libraries(firmware PRIVATE common::stm32f7xx application::main application::audio application::es8388
-    common::stm32f7xx_i2c common::stm32f7xx_sai
+    common::stm32f7xx_eth common::stm32f7xx_i2c common::stm32f7xx_sai common::lwip application::network
     common::freertos_core common::freertos_heap4 application::task_manage)
 if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
     target_link_libraries(firmware PRIVATE common::freertos_port_cm7)

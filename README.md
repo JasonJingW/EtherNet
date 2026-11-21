@@ -34,9 +34,20 @@ build 仅保留 gcc 构建定义和默认产物；CMake、Ninja 和终端依赖�
 
 芯片文件的包含路径、源文件及型号宏见 `platform_common/core/stm32f7xx/README.md`。HAL 文件直接加入手工工程，不依赖 CubeMX 生成代码。
 
-以太网代码已移出仓库暂存，并保留修改前快照、ZIP 副本和 SHA256 清单；当前没有网络初始化与通信功能。暂存位置记录于工作区仓库外的 `ethernet_staging/latest.txt`。
+## 网口连通测试
 
-已通过 ARM GCC 完整固件构建及 ELF 链接，输出 ELF、HEX、BIN 和 MAP，并验证了功能开关组合；尚未上板运行。工作区顶层的原始 HAL 驱动参考仓库及板卡手册保持原位置。
+`task_network` 启动后初始化阿波罗 V1 的 LAN8720A 和 lwIP。地址默认是 `192.168.2.200/24`，UDP 回显端口是 `5001`，可在 `board/config/network_config.h` 修改。RTT 打印初始化结果、协商速率和链路变化。
+
+电脑和开发板接入同一局域网。直连测试时，将电脑有线网卡设为同网段的空闲地址，例如 `192.168.2.10/24`，然后执行：
+
+```powershell
+ping 192.168.2.200
+python -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.settimeout(2); s.sendto(b'ethernet-test', ('192.168.2.200', 5001)); print(s.recvfrom(2048))"
+```
+
+收到 `b'ethernet-test'` 表示 UDP 收发成功。
+
+已通过 ARM GCC 完整固件构建及 ELF 链接，并在阿波罗 V1 上验证了 100 Mbit/s 链路、Ping 和 UDP 回显。
 
 ## 项目配置
 
