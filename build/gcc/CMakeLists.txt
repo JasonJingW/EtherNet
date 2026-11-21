@@ -42,13 +42,24 @@ add_executable(firmware
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_eth.c"
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_iic.c"
     "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_sai.c"
+    "${ETHERNET_PROJECT_ROOT}/board/bsp/bsp_usart.c"
     runtime.c
 )
 set_target_properties(firmware PROPERTIES OUTPUT_NAME "${_artifact_name}" SUFFIX .elf)
+find_package(Git QUIET)
+set(_build_version_header "${CMAKE_CURRENT_BINARY_DIR}/version_build.h")
+add_custom_target(firmware_build_version
+    COMMAND "${CMAKE_COMMAND}" "-DPROJECT_ROOT=${ETHERNET_PROJECT_ROOT}"
+        "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}" "-DOUTPUT_FILE=${_build_version_header}"
+        -P "${CMAKE_CURRENT_LIST_DIR}/write_build_version.cmake"
+    BYPRODUCTS "${_build_version_header}"
+    COMMENT "Generating firmware build version" VERBATIM)
+add_dependencies(firmware firmware_build_version)
 file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/firmware_path.txt"
     CONTENT "$<TARGET_FILE:firmware>\n")
 target_include_directories(firmware PRIVATE "${ETHERNET_PROJECT_ROOT}/board/config"
-    "${ETHERNET_PROJECT_ROOT}/board/bsp" "${ETHERNET_PROJECT_ROOT}/board/config/lwip")
+    "${ETHERNET_PROJECT_ROOT}/board/bsp" "${ETHERNET_PROJECT_ROOT}/board/config/lwip"
+    "${CMAKE_CURRENT_BINARY_DIR}")
 target_compile_definitions(firmware PRIVATE STM32F767xx USE_HAL_DRIVER
     PROJECT_USE_RTT=$<BOOL:${GCC_ENABLE_RTT}>
     PROJECT_USE_SOFTWARE_TIMERS=$<BOOL:${GCC_WITH_TIMERS}>)
@@ -59,6 +70,7 @@ target_compile_options(firmware PRIVATE ${_gcc_arch} -ffunction-sections -fdata-
     "$<$<CONFIG:Debug>:-Og;-g3>")
 target_link_libraries(firmware PRIVATE common::stm32f7xx application::main application::audio application::es8388
     common::stm32f7xx_eth common::stm32f7xx_i2c common::stm32f7xx_sai common::lwip application::network
+    common::stm32f7xx_uart application::cli application::version
     common::freertos_core common::freertos_heap4 application::task_manage)
 if(GCC_FREERTOS_PORT STREQUAL "CM7_R0P1")
     target_link_libraries(firmware PRIVATE common::freertos_port_cm7)

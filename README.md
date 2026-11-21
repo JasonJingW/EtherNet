@@ -49,6 +49,12 @@ python -c "import socket; s=socket.socket(socket.AF_INET,socket.SOCK_DGRAM); s.s
 
 已通过 ARM GCC 完整固件构建及 ELF 链接，并在阿波罗 V1 上验证了 100 Mbit/s 链路、Ping 和 UDP 回显。
 
+## 串口调试
+
+阿波罗 V1 的板载 USB 转串口通过 P4 跳帽连接 USART1（PA9 TX、PA10 RX）。用 USB 线连接板载串口接口，在终端选择对应 COM 口，设置为 `115200 8N1`、无流控、关闭本地回显。按 Enter 后可输入 `help`、`version` 或 `status`，命令以 Enter 结束。
+
+输入 `clear` 可清空终端画面。输入命令前缀后按 Tab 可以补全。多个命令匹配时会显示候选，并保留当前输入。空行按 Tab 会列出所有命令。
+
 ## 项目配置
 
 直接编辑头文件，无需生成步骤：
